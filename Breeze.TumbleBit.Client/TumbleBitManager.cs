@@ -30,6 +30,7 @@ using Stratis.Bitcoin.Connection;
 using Stratis.Bitcoin.Features.Wallet.Models;
 using TransactionData = Stratis.Bitcoin.Features.Wallet.TransactionData;
 using Breeze.Registration;
+using NTumbleBit.Services.RPC;
 
 namespace Breeze.TumbleBit.Client
 {
@@ -821,6 +822,13 @@ namespace Breeze.TumbleBit.Client
                     return -1;
                 }
             }
+        }
+
+        public object RequestRefund()
+        {
+            //runtime.Repository.
+            var t = runtime.Repository.Get<RPCBroadcastService.Record>("Broadcasts", txId.ToString())?.Transaction ??
+                runtime.Repository.Get<Transaction>("CachedTransactions", txId.ToString());
         }
     }
 

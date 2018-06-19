@@ -252,10 +252,31 @@ namespace Breeze.TumbleBit.Controllers
             return this.Ok();
         }
 
-	    /// <summary>
-	    /// Tumbling Progress expressed as json.
-	    /// </summary>
-	    [Route("progress")]
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [Route("request-refund")]
+        [HttpGet]
+        public IActionResult RequestRefund()
+        {
+            try
+            {
+                var refundData = this.tumbleBitManager.RequestRefund();
+                return this.Json(refundData);
+            }
+            catch (Exception e)
+            {
+                return Client.ErrorHelpers.BuildErrorResponse(HttpStatusCode.BadRequest, $"Could not get transaction refund information.", e.ToString());
+            }
+        }
+
+        /// <summary>
+        /// Tumbling Progress expressed as json.
+        /// </summary>
+        [Route("progress")]
 	    [HttpGet]
 	    public async Task<IActionResult> ProgressAsync()
 	    {
