@@ -136,7 +136,7 @@ namespace Breeze.Daemon
                 SetupTumbleBitConsoleLogs(nodeSettings);
 
                 // Currently TumbleBit is bitcoin only
-                if (args.Contains("-tumblebit"))
+                if (args.Contains("tumblebit"))
                 {
                     // We no longer pass the URI in via the command line, the registration feature selects a random one
                     fullNodeBuilder.UseTumbleBit(configurationOptions);
