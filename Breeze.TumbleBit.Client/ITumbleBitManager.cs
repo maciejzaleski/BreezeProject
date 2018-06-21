@@ -60,6 +60,6 @@ namespace Breeze.TumbleBit.Client
         /// </summary>
         int LastBlockTime { get; }
 
-        object RequestRefund();
+        Task<Dictionary<string, Dictionary<string, string>>> RequestRefund();
     }
 }

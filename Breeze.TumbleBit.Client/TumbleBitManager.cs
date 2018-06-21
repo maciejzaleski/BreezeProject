@@ -31,6 +31,7 @@ using Stratis.Bitcoin.Features.Wallet.Models;
 using TransactionData = Stratis.Bitcoin.Features.Wallet.TransactionData;
 using Breeze.Registration;
 using NTumbleBit.Services.RPC;
+using Stratis.Bitcoin.Broadcasting;
 
 namespace Breeze.TumbleBit.Client
 {
@@ -824,11 +825,39 @@ namespace Breeze.TumbleBit.Client
             }
         }
 
-        public object RequestRefund()
+        public async Task<Dictionary<string, Dictionary<string, string>>> RequestRefund()
         {
-            //runtime.Repository.
-            var t = runtime.Repository.Get<RPCBroadcastService.Record>("Broadcasts", txId.ToString())?.Transaction ??
-                runtime.Repository.Get<Transaction>("CachedTransactions", txId.ToString());
+            var refundInformation = new Dictionary<string, Dictionary<string, string>>();
+            var refundTransactions = new Dictionary<string, string>();
+            refundInformation.Add("Refunds", refundTransactions);
+
+            var broadcasts = runtime.Repository.List<RPCBroadcastService.Record>("Broadcasts");
+            foreach (RPCBroadcastService.Record record in broadcasts)
+            {
+                TransactionBroadcastEntry broadcastEntry = TumblingState.BroadcasterManager.GetTransaction(record.Transaction.GetHash());
+
+                string data = string.Empty;
+                data += $"Time: {record.Transaction.Time}||";
+                data += $"Expiration: {record.Expiration}||";
+                data += $"TotalOut: {record.Transaction.TotalOut}||";
+                data += $"Inputs: {record.Transaction.Inputs.Count}||";
+                data += $"Outputs: {record.Transaction.Outputs.Count}||";
+                data += $"State: {broadcastEntry?.State}||";
+                data += $"Transaction Check: {record.Transaction.Check()}||";
+                data += $"Hex: {record.Transaction.ToHex()}||";
+
+                if (record.Transaction.Inputs.Count == 1 && record.Transaction.Outputs.Count == 1)
+                {
+                    refundTransactions.Add(record.Transaction.GetHash().ToString(), data);
+
+                    //Reset transaction propagation so that it can be transmitted again
+                    if (broadcastEntry != null)
+                        broadcastEntry.State = Stratis.Bitcoin.Broadcasting.State.ToBroadcast;
+                    await broadcasterManager.BroadcastTransactionAsync(record.Transaction).ConfigureAwait(false);
+                }
+            }
+
+            return refundInformation;
         }
     }
 
