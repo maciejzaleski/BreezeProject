@@ -853,7 +853,7 @@ namespace Breeze.TumbleBit.Client
                     //Reset transaction propagation so that it can be transmitted again
                     if (broadcastEntry != null)
                         broadcastEntry.State = Stratis.Bitcoin.Broadcasting.State.ToBroadcast;
-                    await broadcasterManager.BroadcastTransactionAsync(record.Transaction).ConfigureAwait(false);
+                    //await broadcasterManager.BroadcastTransactionAsync(record.Transaction).ConfigureAwait(false);
                 }
             }
 
